@@ -14,16 +14,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Build the Docker image
       run: |
         docker build . --file docker/linux_amd64/Dockerfile --tag my-image-name:latest
 
-    - uses: actions/checkout@v4
     - name: Save Docker image as tar file
       run: |
         docker save -o my-image.tar my-image-name:latest
 
-    - uses: actions/checkout@v4
     - name: Upload Docker image tar file
       with:
         name: my-image.tar
