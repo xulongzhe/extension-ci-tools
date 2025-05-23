@@ -24,6 +24,7 @@ jobs:
         docker save -o my-image.tar my-image-name:latest
 
     - name: Upload Docker image tar file
+      uses: actions/upload-artifact@v3
       with:
         name: my-image.tar
         path: my-image.tar
