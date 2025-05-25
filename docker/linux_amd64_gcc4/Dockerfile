@@ -17,29 +17,6 @@ RUN yum install -y ccache
 RUN yum install -y java-11-openjdk-devel maven
 RUN yum install -y libgcc*i686 libstdc++*i686 glibc*i686 libgfortran*i686
 
-# Setup VCPKG n a mounted volume TODO: figure out how to cache this
-ARG vcpkg_url
-ARG vcpkg_commit
-RUN mkdir /vcpkg && \
-    cd /vcpkg && \
-    git init && \
-    git remote add origin $vcpkg_url && \
-    git fetch origin $vcpkg_commit && \
-    git checkout $vcpkg_commit && \
-    ./bootstrap-vcpkg.sh
-ENV VCPKG_ROOT=/vcpkg
-ENV VCPKG_TOOLCHAIN_PATH=/vcpkg/scripts/buildsystems/vcpkg.cmake
-
-# The version of Curl is so old (curl 7.29.0 (x86_64-redhat-linux-gnu)
-# that vcpkg can't use it for build artifact caching, so install a recent
-# version of curl from vcpkg and symlink it in place.
-RUN curl --version
-RUN /vcpkg/vcpkg integrate install
-RUN /vcpkg/vcpkg install curl[tool]
-RUN mv /usr/bin/curl /usr/bin/curl.old
-RUN ln -s /vcpkg/installed/x64-linux/tools/curl/curl /usr/bin/curl
-RUN curl --version
-
 # Common environment variables
 ENV GEN=ninja
 ENV DUCKDB_PLATFORM=linux_amd64_gcc4
