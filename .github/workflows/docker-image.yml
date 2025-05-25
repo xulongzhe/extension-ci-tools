@@ -1,6 +1,15 @@
 name: Docker Image CI
 
 on:
+  workflow_dispatch:
+    inputs:
+      dockerfile_path:
+        description: 'Path to the Dockerfile'
+        required: true
+      image_name:
+        description: 'Name of the Docker image'
+        required: true
+        default: 'linux_arm64'
   push:
     branches: [ "main" ]
   pull_request:
@@ -17,14 +26,22 @@ jobs:
     
     - name: Build the Docker image
       run: |
-        docker build . --file docker/linux_amd64/Dockerfile --tag my-image-name:latest
+        docker build . --file ${{ github.event.inputs.dockerfile_path }} --tag ${{ github.event.inputs.image_name }}:latest
+      if: github.event_name == 'workflow_dispatch'
+    
+    - name: Build the Docker image (default)
+      run: |
+        docker build . --file docker/linux_arm64/Dockerfile --tag ${{ github.event.inputs.image_name }}:latest
+      if: github.event_name != 'workflow_dispatch'
 
     - name: Save Docker image as tar file
       run: |
-        docker save -o my-image.tar my-image-name:latest
+        docker save -o ${{ github.event.inputs.image_name }} ${{ github.event.inputs.image_name }}:latest
+      if: github.event_name == 'workflow_dispatch'
 
     - name: Upload Docker image tar file
-      uses: actions/upload-artifact@v4  # ✅ 使用最新稳定版本
+      uses: actions/upload-artifact@v4
       with:
-        name: my-image.tar
-        path: my-image.tar
+        name: ${{ github.event.inputs.image_name }}
+        path: ${{ github.event.inputs.image_name }}
+      if: github.event_name == 'workflow_dispatch'
