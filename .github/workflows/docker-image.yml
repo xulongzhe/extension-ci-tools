@@ -1,19 +1,18 @@
-name: Docker Image CI
+name: Docker镜像制作
 
 on:
   workflow_dispatch:
     inputs:
       dockerfile_path:
-        description: 'Path to the Dockerfile'
+        description: 'Dockerfile路径'
         required: true
       image_name:
-        description: 'Name of the Docker image'
+        description: 'Docker镜像名称'
         required: true
-        default: 'linux_arm64'
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+      image_version:
+        description: 'Docker镜像版本'
+        required: true
+        default: 'latest'
 
 jobs:
 
@@ -31,12 +30,12 @@ jobs:
     
     - name: Build the Docker image (default)
       run: |
-        docker build . --file docker/linux_arm64/Dockerfile --tag ${{ github.event.inputs.image_name }}:latest
+        docker build . --file docker/linux_arm64/Dockerfile --tag ${{ github.event.inputs.image_name }}:${{ github.event.inputs.image_version }}
       if: github.event_name != 'workflow_dispatch'
 
     - name: Save Docker image as tar file
       run: |
-        docker save -o ${{ github.event.inputs.image_name }} ${{ github.event.inputs.image_name }}:latest
+        docker save -o ${{ github.event.inputs.image_name }} ${{ github.event.inputs.image_name }}:${{ github.event.inputs.image_version }}
       if: github.event_name == 'workflow_dispatch'
 
     - name: Upload Docker image tar file
