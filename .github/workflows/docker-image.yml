@@ -35,12 +35,12 @@ jobs:
 
     - name: Save Docker image as tar file
       run: |
-        docker save -o ${{ github.event.inputs.image_name }} ${{ github.event.inputs.image_name }}:${{ github.event.inputs.image_version }}
+        docker save -o ${{ github.event.inputs.image_name }}.tar ${{ github.event.inputs.image_name }}:${{ github.event.inputs.image_version }}
       if: github.event_name == 'workflow_dispatch'
 
     - name: Upload Docker image tar file
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.inputs.image_name }}
-        path: ${{ github.event.inputs.image_name }}
+        name: ${{ github.event.inputs.image_name }}.tar
+        path: ${{ github.event.inputs.image_name }}.tar
       if: github.event_name == 'workflow_dispatch'
